@@ -81,7 +81,7 @@ class NoteController extends Controller
             return Abort(403);
         }
         // $note = Note::where('uuid', $id)->where('user_id',Auth::id())->firstOrFail();
-        return view('notes.show')->with('note'. $note);
+        return view('notes.show',compact('note'));
     }
 
     /**
