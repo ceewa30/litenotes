@@ -19,12 +19,15 @@ class NoteController extends Controller
     //    $userId = Auth::id();
     //    $notes = Note::where('user_id', $user_Id)->get();
 
-        // $notes = Note::where('user_id', Auth::id())->latest('updated_at')->get();
-        $notes = Note::where('user_id', Auth::id())->latest('updated_at')->paginate(5);
+        // 2. $notes = Note::where('user_id', Auth::id())->latest('updated_at')->get();
+
+        // 3. $notes = Note::where('user_id', Auth::id())->latest('updated_at')->paginate(5);
+        $notes = Auth::user()->notes()->latest('updated_at')->paginate(5);
+
         // $notes->each(function($note) {
         //     dump($note->title);
         // });  
-
+        // 5.$notes = Note::whereBelogsTo(Auth::user())->latest('updated_at')->paginate(5);
         return view('notes.index')->with('notes', $notes);
     }
 
@@ -77,7 +80,7 @@ class NoteController extends Controller
      */
     public function show(Note $note)
     {
-        if($note->user_id != Auth::id()) {
+        if(!$note->user->is(Auth::user())) {
             return Abort(403);
         }
         // $note = Note::where('uuid', $id)->where('user_id',Auth::id())->firstOrFail();
@@ -92,7 +95,10 @@ class NoteController extends Controller
      */
     public function edit(Note $note)
     {
-        if($note->user_id != Auth::id()) {
+        // if($note->user_id != Auth::id()) {
+        //     return Abort(403);
+        // }
+        if(!$note->user->is(Auth::user())) {
             return Abort(403);
         }
         return view('notes.edit',compact('note'));
@@ -107,7 +113,7 @@ class NoteController extends Controller
      */
     public function update(Request $request, Note $note)
     {
-        if($note->user_id != Auth::id()) {
+        if(!$note->user->is(Auth::user())) {
             return Abort(403);
         }
 
@@ -133,12 +139,12 @@ class NoteController extends Controller
      */
     public function destroy(Note $note)
     {
-        if($note->user_id != Auth::id()) {
+        if(!$note->user->is(Auth::user())) {
             return Abort(403);
         }
 
         $note->delete();
 
-        return to_route('notes.index')->with('success', 'Note deleted success');
+        return to_route('notes.index')->with('success', 'Note move to Trash success');
     }
 }
